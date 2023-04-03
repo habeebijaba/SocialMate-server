@@ -9,6 +9,12 @@ import { addStory, getUserStories, getFriendsStories } from "../controllers/stor
 
 const router = express.Router();
 
+
+
+router.get('/check',(req,res)=>{
+    res.send("hai friendssss")
+})
+
 router.post('/signup', register);
 router.post('/login', login);
 
