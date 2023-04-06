@@ -12,7 +12,7 @@ const router = express.Router();
 
 
 router.get('/check',(req,res)=>{
-    res.send("hai friendssss")
+    res.send("testing route")
 })
 
 router.post('/signup', register);

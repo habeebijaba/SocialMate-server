@@ -23,7 +23,13 @@ const io = new Server(httpServer, {
     }
 });
 
-
+app.use(function (req, res, next) {
+    res.header(
+      "Access-Control-Allow-Origin",
+      'https://master.d36qgvja35m2ae.amplifyapp.com'
+    );
+    next();
+  });
 
 app.use(express.json());
 app.use(helmet());
@@ -34,16 +40,10 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cors());
 connectDB();
 
-
-
-
-
 app.use('/api', userRoutes);
 app.use('/api/converstation', ConverstationRoutes);
 app.use('/api/message', MessageRoutes);
 app.use('/admin',adminRoutes)
-
-
 
 let users = []
 
