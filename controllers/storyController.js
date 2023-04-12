@@ -70,7 +70,6 @@ export const getUserStories = async (req, res) => {
 export const getFriendsStories = async (req, res) => {
     try {
         const userId = req.user.id;
-        console.log(userId);
         const stories = await Story.aggregate([
             { $match: { author: { $ne: mongoose.Types.ObjectId(userId) }, isDelete: false } },
             { $sort: { createdAt: -1 } },

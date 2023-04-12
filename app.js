@@ -20,6 +20,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: 'https://master.d36qgvja35m2ae.amplifyapp.com'
+        // origin:"http://localhost:3000"
     }
 });
 
@@ -43,7 +44,7 @@ connectDB();
 app.use('/api', userRoutes);
 app.use('/api/converstation', ConverstationRoutes);
 app.use('/api/message', MessageRoutes);
-app.use('/admin',adminRoutes)
+app.use('/api/admin',adminRoutes)
 
 let users = []
 

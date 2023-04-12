@@ -1,6 +1,9 @@
 import Post from '../models/Post.js';
 import cloudinary from '../config/cloudinery.js';
 import Notification from '../models/Notifiaction.js';
+import mongoose from 'mongoose';
+const ObjectId = mongoose.Types.ObjectId
+
 
 
 export const createPost = async (req, res) => {
@@ -15,7 +18,7 @@ export const createPost = async (req, res) => {
             content,
             author: id,
             image: result.secure_url,
-            likes:{}
+            likes: {}
         });
 
         const savedPost = await newPost.save();
@@ -23,21 +26,23 @@ export const createPost = async (req, res) => {
             .populate('author', 'username profilePic')
             .populate('comments.author', 'username profilePic')
             .exec();
-        
+
         res.status(201).json(populatedPost);
     } catch (error) {
-        console.log(error);
         res.status(404).json({ message: error.message });
     }
 };
 
 
 export const getPosts = async (req, res) => {
-    console.log(req.query.skip,"the params");
+
+    let skip = req.query.skip
+    console.log(skip,"skip is here");
+    let userId = req.query.userId
     try {
         // const userId = req.user.id;
         // const user = await User.findById(userId).populate('friends');
-        
+
         // const friendIds = user.friends?.map((friend) => friend._id);
 
         // const posts = await Post.find({ author: { $in: [...friendIds, user._id] } })
@@ -45,7 +50,12 @@ export const getPosts = async (req, res) => {
         //     .populate('comments.author', 'username image')
         //     .sort({ createdAt: 'desc' })
         //     .exec();
-        const posts = await Post.find()
+        const posts = await Post.find({
+            $and: [
+                { author: { $ne: userId } },
+                { isDeleted: false }
+            ]
+        })
             .populate('author', 'username profilePic')
             .populate({
                 path: 'comments',
@@ -53,11 +63,10 @@ export const getPosts = async (req, res) => {
                 options: { sort: { createdAt: -1 } }
             })
             .sort({ createdAt: -1 })
-            .skip(req.query.skip)
+            .skip(skip)
             .limit(10)
             .exec();
-        
-           
+
         res.status(200).json(posts);
 
     } catch (error) {
@@ -120,7 +129,7 @@ export const commentPost = async (req, res) => {
         })
         await notification.save();
         const savedPost = await post.save();
-        
+
         const populatedPost = await Post.findById(savedPost._id)
             .populate('author', 'username profilePic')
             .populate({
@@ -129,7 +138,6 @@ export const commentPost = async (req, res) => {
                 options: { sort: { createdAt: -1 } }
             })
             .exec();
-
         res.status(201).json(populatedPost);
     } catch (err) {
         res.status(404).json({ message: err.message });
@@ -139,7 +147,6 @@ export const commentPost = async (req, res) => {
 export const getUserPost = async (req, res) => {
     try {
         const { id } = req.params;
-        console.log(id);
         const posts = await Post.find({ author: id })
             .populate('author', 'username profilePic')
             .populate({
@@ -149,7 +156,6 @@ export const getUserPost = async (req, res) => {
             })
             .sort({ createdAt: -1 })
             .exec();
-        
         res.status(200).json(posts)
     } catch (err) {
         res.status(404).json({ message: err.message });

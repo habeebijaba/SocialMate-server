@@ -1,6 +1,6 @@
 import express from "express";
 import { getUser, login, register, addProfilePic, getUserSuggestion, followUser, unFollowUser, editUserProfile, googleLogin, getNotifications, getAllUsers } from "../controllers/userController.js";
-import { verifyToken } from '../middleware/auth.js';
+import { verifyToken,verifyBlock } from '../middleware/auth.js';
 import upload from "../config/multer.js";
 import { createPost, getPosts, likePost, commentPost, getUserPost } from "../controllers/postController.js";
 import { addStory, getUserStories, getFriendsStories } from "../controllers/storyController.js";
@@ -17,7 +17,7 @@ router.get('/check',(req,res)=>{
 
 router.post('/signup', register);
 router.post('/login', login);
-
+router.get('/verify-block',verifyBlock)
 
 
 router.post('/add-post', verifyToken, upload.single('image'), createPost);

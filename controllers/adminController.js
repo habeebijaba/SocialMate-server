@@ -26,7 +26,6 @@ export const login = async (req, res) => {
 /*GET ALL USERS*/
 
 export const getallUsers = async (req, res) => {
-    console.log("called for users");
     try {
         const allusers = await User.find()
         if (allusers) {
@@ -58,14 +57,13 @@ export const blockuser = (req, res) => {
             })
         }
     } catch (err) {
-        res.status(500).json({ message: error.message })
+        res.status(500).json({ message: err.message })
     }
 }
 
 /*SEARCH  USERS*/
 
 export const searchUser = async (req, res) => {
-    console.log("call on server siode");
     const { key } = req.params
     try {
         const users = await User.find({
@@ -78,7 +76,6 @@ export const searchUser = async (req, res) => {
                 }
             ]
         })
-        // console.log(users, "hey this is usesr from search");
         res.status(200).json(users);
     } catch (err) {
         res.status(404).json({ message: err.message })
@@ -108,20 +105,36 @@ export const getallPosts = async (req, res) => {
 /*DELETE  POST*/
 
 export const deletePost = async (req, res) => {
-    console.log("called for delete");
     try {
         const { id } = req.params;
-        console.log(id, "this is id");
-
         const response = await Post.updateOne({ _id: ObjectId(id) }, { isDeleted: true });
-        console.log(response, "this is updated post");
-
         res.status(200).json({ message: "Post deleted successfully." });
     } catch (err) {
         console.error(err);
         res.status(500).json({ message: err.message });
     }
 };
+
+/*SEARCH  POSTS*/
+
+export const searchPost = async (req, res) => {
+    const { key } = req.params
+    try {
+        const allPosts = await Post.find()
+            .populate('author', 'username profilePic')
+            .populate({
+                path: 'comments',
+                populate: { path: 'author', select: 'username profilePic' },
+                options: { sort: { createdAt: -1 } }
+            })
+            .exec();
+        const regex = new RegExp(key, "i");
+        const filteredArr = allPosts.filter(obj => regex.test(obj.author.username));
+        res.status(200).json(filteredArr);
+    } catch (err) {
+        res.status(404).json({ message: err.message })
+    }
+}
 
 /*GET DASHBOARDCOUNTS*/
 
@@ -160,4 +173,78 @@ export const getDashboardCount = async (req, res) => {
     } catch (err) {
         res.status(500).json({ message: err.message })
     }
+}
+
+/*GET POSTSBYMONTH*/
+
+export const getPostsByMonth = async (req, res) => {
+    try {
+        const startDate = new Date('2023-01-01');
+        const endDate = new Date('2023-12-31');
+        const months = getMonthsInRange(startDate, endDate);
+
+        const results = await Post.aggregate([
+            {
+                $match: {
+                    createdAt: {
+                        $gte: startDate,
+                        $lte: endDate
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    month: '$_id',
+                    count: 1
+                }
+            },
+            {
+                $group: {
+                    _id: null,
+                    data: {
+                        $push: {
+                            k: '$month',
+                            v: '$count'
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    data: {
+                        $arrayToObject: '$data'
+                    }
+                }
+            }
+        ]);
+        // Combine the results with the months array to ensure all months are included
+        const finalResults = months.map(month => {
+            return {
+                month: month,
+                count: results[0].data[month] || 0
+            }
+        });
+        res.status(200).json(finalResults);
+    } catch (err) {
+        res.status(500).json({ message: err.message })
+    }
+}
+
+// Custom function to get all months in range
+function getMonthsInRange(startDate, endDate) {
+    const months = []
+    let currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+        months.push(currentDate.toISOString().substring(0, 7));
+        currentDate.setMonth(currentDate.getMonth() + 1);
+    }
+    return months;
 }

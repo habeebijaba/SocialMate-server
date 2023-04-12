@@ -1,6 +1,6 @@
 import express from "express";
 const router = express.Router();
-import { login,getallUsers,blockuser,searchUser,getallPosts,deletePost,getDashboardCount} from "../controllers/adminController.js";
+import { login,getallUsers,blockuser,searchUser,getallPosts,deletePost,searchPost,getDashboardCount,getPostsByMonth} from "../controllers/adminController.js";
 
 /*AUTH ROUTES*/
 router.post('/login', login);
@@ -15,8 +15,10 @@ router.get('/searchUser/:key',searchUser)
 
 router.get('/getallposts',getallPosts)
 router.put('/deletePost/:id',deletePost)
+router.get('/searchPost/:key',searchPost)
 
 router.get('/getDashboardCount',getDashboardCount)
+router.get('/getPostByMonth',getPostsByMonth)
 
 
 

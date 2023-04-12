@@ -44,6 +44,7 @@ export const login = async (req, res) => {
         const { email, password } = req.body;
         const user = await User.findOne({ email: email });
         if (!user) return res.status(400).json({ msg: "User does not exist. " });
+        if(user.isBlocked)return res.status(400).json({msg:"you are temporarly blocked"})
 
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ msg: "Invalid credentials. " });
@@ -138,10 +139,11 @@ export const followUser = async (req, res) => {
         const sugesstions = await User.find({ _id: { $nin: [...updatedUser.followings, id] } });
         res.status(200).json({ sugesstions, updatedUser });
     } catch (error) {
+        console.log(error);
         res.status(500).json(error)
     }
 };
-
+ 
 export const unFollowUser = async (req, res) => {
     try {
         const { id } = req.user;
@@ -169,7 +171,7 @@ export const unFollowUser = async (req, res) => {
         const sugesstions = await User.find({ _id: { $nin: [...updatedUser.followings, id] } });
         res.status(200).json({sugesstions, updatedUser});
     } catch (error) {
-        res.status(500).json(error)
+        res.status(500).json(error) 
     }
 }
 
