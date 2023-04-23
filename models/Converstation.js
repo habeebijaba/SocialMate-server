@@ -5,6 +5,10 @@ const converstationSchema = new mongoose.Schema(
         members: {
             type:Array,
         },
+        unreadMessages: {
+            type: Map,
+            of: Number,
+          }, 
     },
     {timestamps: true}
 );

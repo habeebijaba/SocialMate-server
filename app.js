@@ -19,8 +19,9 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: 'https://master.d36qgvja35m2ae.amplifyapp.com'
-        // origin:"http://localhost:3000"
+        origin: 'https://master.d36qgvja35m2ae.amplifyapp.com',
+        origin:"http://localhost:3000",
+        methods: ["GET", "POST"]
     }
 });
 
@@ -72,9 +73,17 @@ io.on('connection', (socket) => {
     // Send and Get message
     socket.on('sendMessage', ({ senderId, receiverId, text }) => {
         const user = getUser(receiverId);
-        console.log('new message');
         io.to(user?.socketId).emit('getMessage', {
             senderId, text
+        })
+
+    })
+
+    // send and get notification
+    socket.on('sendNotification',({senderId,senderName,receiverId,action,picture,userpic})=>{
+        const user=getUser(receiverId);
+        io.to(user?.socketId).emit('getNotification',{
+            senderId,senderName,action,picture,userpic
         })
     })
 

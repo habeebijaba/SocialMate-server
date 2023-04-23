@@ -33,7 +33,8 @@ const postSchema = new mongoose.Schema({
         isDelete: {
             type: Boolean,
             default: false
-        }
+        },
+       
     }],
     createdAt: {
         type: Date,
@@ -42,7 +43,15 @@ const postSchema = new mongoose.Schema({
     isDeleted: {
         type: Boolean,
         default: false
-    }
+    },
+    isReported:{
+        type:Boolean,
+        default:false
+    },
+    reportedUsers: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      }],
 });
 
 const Post = mongoose.model('Post', postSchema);

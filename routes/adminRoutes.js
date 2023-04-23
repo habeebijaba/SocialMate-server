@@ -1,6 +1,17 @@
 import express from "express";
 const router = express.Router();
-import { login,getallUsers,blockuser,searchUser,getallPosts,deletePost,searchPost,getDashboardCount,getPostsByMonth} from "../controllers/adminController.js";
+import { login,
+        getallUsers,
+        blockuser,
+        searchUser,
+        getallPosts,
+        deletePost,
+        searchPost,
+        getDashboardCount,
+        getPostsByMonth,
+        getNotifications,
+        reportPost,
+        getrequestCount} from "../controllers/adminController.js";
 
 /*AUTH ROUTES*/
 router.post('/login', login);
@@ -15,11 +26,13 @@ router.get('/searchUser/:key',searchUser)
 
 router.get('/getallposts',getallPosts)
 router.put('/deletePost/:id',deletePost)
+router.put('/reportPost/:id',reportPost)
+
 router.get('/searchPost/:key',searchPost)
 
 router.get('/getDashboardCount',getDashboardCount)
 router.get('/getPostByMonth',getPostsByMonth)
-
-
+router.get('/getNotifications',getNotifications)
+router.get('/getrequestCount',getrequestCount)
 
 export default router;

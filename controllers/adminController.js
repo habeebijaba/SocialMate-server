@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
 import User from "../models/User.js";
 import Post from '../models/Post.js'
+import AdminNotifications from '../models/AdminNotifications.js';
 const ObjectId = mongoose.Types.ObjectId;
 
 const adminUsername = process.env.ADMIN_USERNAME
@@ -114,6 +115,34 @@ export const deletePost = async (req, res) => {
         res.status(500).json({ message: err.message });
     }
 };
+/*REPORT  POST*/
+
+export const reportPost = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {notificationId}=req.body
+        const response = await Post.updateOne({ _id: ObjectId(id) }, { isReported: true });
+        AdminNotifications.deleteOne({_id:notificationId}).then(()=>{
+            res.status(200).json({ message: "Post deleted successfully." });
+
+        })
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: err.message });
+    }
+};
+
+/*REQUEST COUNT*/
+
+export const getrequestCount=async (req,res)=>{
+    try{
+        const count =await AdminNotifications.count()
+        res.status(200).json(count)
+    }catch(err){
+        res.status(404).json({message:err.message})
+    }
+}
+
 
 /*SEARCH  POSTS*/
 
@@ -247,4 +276,19 @@ function getMonthsInRange(startDate, endDate) {
         currentDate.setMonth(currentDate.getMonth() + 1);
     }
     return months;
+}
+
+export const getNotifications =async (req,res)=>{
+    try {
+        const notifications=await AdminNotifications.find({isApproved:false})
+        .populate('user', 'username profilePic')  
+        .populate('postId','image isReported')
+        .populate({ 
+            path: 'postOwner', 
+            select: 'username' 
+          })
+          res.status(200).json(notifications)
+    } catch (error) {
+        res.status(404).json({message:error.message})
+    }
 }

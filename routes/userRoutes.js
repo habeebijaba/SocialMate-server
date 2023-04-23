@@ -2,8 +2,9 @@ import express from "express";
 import { getUser, login, register, addProfilePic, getUserSuggestion, followUser, unFollowUser, editUserProfile, googleLogin, getNotifications, getAllUsers } from "../controllers/userController.js";
 import { verifyToken,verifyBlock } from '../middleware/auth.js';
 import upload from "../config/multer.js";
-import { createPost, getPosts, likePost, commentPost, getUserPost } from "../controllers/postController.js";
+import { createPost, getPosts, likePost, commentPost,deleteComment, getUserPost,deletePost,reportPost } from "../controllers/postController.js";
 import { addStory, getUserStories, getFriendsStories } from "../controllers/storyController.js";
+// import { deletePost } from "../controllers/adminController.js";
 
 
 
@@ -38,8 +39,12 @@ router.get('/get-all-user', verifyToken, getAllUsers)
 /* UPDATE */
 router.patch("/posts/:id/like", verifyToken, likePost);
 router.patch("/posts/:id/comment", verifyToken, commentPost);
+router.patch('/deleteComment',verifyToken,deleteComment)
 router.patch("/add-friend", verifyToken, followUser);
 router.patch('/unfollow', verifyToken, unFollowUser)
+router.patch('/deletePost/:postId',verifyToken,deletePost)
+router.patch('/reportPost/:postId',verifyToken,reportPost)
+
 
 router.put('/user/profile', verifyToken, editUserProfile)
 

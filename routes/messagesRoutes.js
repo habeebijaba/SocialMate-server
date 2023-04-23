@@ -10,6 +10,7 @@ router.post('/', createMessage);
 
 /* Get */
 router.get('/:converstationId', getMessages)
+// router.get('lastMessage/:conversationId',getlastMessage)
 
 
 export default router;
